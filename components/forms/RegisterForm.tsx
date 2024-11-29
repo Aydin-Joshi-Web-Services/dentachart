@@ -131,7 +131,7 @@ const RegisterForm = ({ user }: { user: User }) => {
         className="flex-1 space-y-12"
       >
         <section className="space-y-4">
-          <h1 className="header">Welcome 👋</h1>
+          <h1 className="header">Welcome, start by entering your medical information 👋</h1>
           <p className="text-dark-700">Let us know more about yourself.</p>
         </section>
 
