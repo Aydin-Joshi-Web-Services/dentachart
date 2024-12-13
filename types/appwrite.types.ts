@@ -1,7 +1,9 @@
 import { Models } from "node-appwrite";
 
-export interface Patient extends Models.Document {
+export type Patient = {
+  $id: string;
   userId: string;
+  name: string;
   birthDate: Date;
   address: string;
   emergencyContactName: string;
@@ -21,7 +23,7 @@ export interface Patient extends Models.Document {
   dentalGroupNumber: string;
   primaryPhysician: string;
   ssn: string;
-}
+};
 
 export interface Appointment extends Models.Document {
   patient: Patient;
