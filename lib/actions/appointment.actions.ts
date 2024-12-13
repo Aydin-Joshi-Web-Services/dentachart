@@ -13,6 +13,8 @@ import {
 } from "../appwrite.config";
 import { formatDateTime, parseStringify } from "../utils";
 
+const DEFAULT_TIMEZONE = "Asia/Manila";
+
 //  CREATE APPOINTMENT
 export const createAppointment = async (
   appointment: CreateAppointmentParams
@@ -120,7 +122,6 @@ export const sendSMSNotification = async (userId: string, content: string) => {
 export const updateAppointment = async ({
   appointmentId,
   userId,
-  timeZone,
   appointment,
   type,
 }: UpdateAppointmentParams) => {
@@ -135,7 +136,7 @@ export const updateAppointment = async ({
 
     if (!updatedAppointment) throw Error;
 
-    const smsMessage = `Greetings from Dentachart. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!, timeZone).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!, timeZone).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
+    const smsMessage = `Greetings from Dentachart. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!, DEFAULT_TIMEZONE).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!, DEFAULT_TIMEZONE).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
     await sendSMSNotification(userId, smsMessage);
 
     revalidatePath("/admin");

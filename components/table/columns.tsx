@@ -22,7 +22,7 @@ export const columns: ColumnDef<Appointment>[] = [
     header: "Patient",
     cell: ({ row }) => {
       const appointment = row.original;
-      return <a href={`/${appointment.$id}`}><p className="text-14-medium ">{appointment.patient.name}</p></a>;
+      return <a href={`/admin/patient/${appointment.patient.userId}`}><p className="text-14-medium text-blue-500 underline">{appointment.patient.name}</p></a>;
     },
   },
   {

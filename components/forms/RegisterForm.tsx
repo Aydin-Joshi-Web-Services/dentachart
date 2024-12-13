@@ -6,10 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Form, FormControl } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { GenderOptions, PatientFormDefaultValues } from "@/constants";
+import { Form } from "@/components/ui/form";
+import { PatientFormDefaultValues } from "@/constants";
 import { registerPatient } from "@/lib/actions/patient.actions";
 import { PatientFormValidation } from "@/lib/validation";
 
@@ -47,57 +45,31 @@ const RegisterForm = ({ user }: { user: User }) => {
 
         // Personal Details
         birthDate: new Date(values.birthDate),
-        gender: values.gender,
         address: values.address,
 
         // Emergency Contact
         emergencyContactName: values.emergencyContactName,
-        emergencyContactNumber: values.emergencyContactNumber,
 
         // Medical Background
-        allergies: values.allergies,
         currentMedication: values.currentMedication,
 
         // Consent Fields
-        privacyConsent: values.privacyConsent,
-        treatmentsConsent: values.treatmentsConsent,
         disclosureConsent: values.disclosureConsent,
 
         // Medical Information
         ssn: values.ssn,
         primaryPhysician: values.primaryPhysician,
-        primaryPhysicianNumber: values.primaryPhysicianNumber,
+
         medicalConditions: values.medicalConditions,
-        medicalSignature: values.medicalSignature,
-        medicalSignatureDate: new Date(values.medicalSignatureDate),
 
         // Dental Information
         oftenSeeDentist: values.oftenSeeDentist,
         lastDentalVisit: new Date(values.lastDentalVisit),
-        primaryDentist: values.primaryDentist,
-        lastDentistName: values.lastDentistName,
-        lastDentistLocation: values.lastDentistLocation,
         dateRecentXrays: new Date(values.dateRecentXrays),
-        dentalSignature: values.dentalSignature,
-        dentalSignatureDate: new Date(values.dentalSignatureDate),
 
-        // Medical Insurance
-        medicalEmployerName: values.medicalEmployerName,
-        medicalInsuranceName: values.medicalInsuranceName,
-        medicalInsuranceNumber: values.medicalInsuranceNumber,
-        medicalInsuranceAddress: values.medicalInsuranceAddress,
-        medicalSubscriberName: values.medicalSubscriberName,
-        medicalSubscriberBirth: new Date(values.medicalSubscriberBirth),
-        medicalSubscriberSsn: values.medicalSubscriberSsn,
-        medicalMemberIdNumber: values.medicalMemberIdNumber,
-        medicalGroupNumber: values.medicalGroupNumber,
-        medicalInsuranceSignature: values.medicalInsuranceSignature,
-        medicalInsuranceSignatureDate: new Date(
-          values.medicalInsuranceSignatureDate
-        ),
+
 
         // Dental Insurance
-        dentalEmployerName: values.dentalEmployerName,
         dentalInsuranceName: values.dentalInsuranceName,
         dentalInsuranceNumber: values.dentalInsuranceNumber,
         dentalInsuranceAddress: values.dentalInsuranceAddress,
@@ -106,10 +78,6 @@ const RegisterForm = ({ user }: { user: User }) => {
         dentalSubscriberSsn: values.dentalSubscriberSsn,
         dentalMemberIdNumber: values.dentalMemberIdNumber,
         dentalGroupNumber: values.dentalGroupNumber,
-        dentalInsuranceSignature: values.dentalInsuranceSignature,
-        dentalInsuranceSignatureDate: new Date(
-          values.dentalInsuranceSignatureDate
-        ),
       };
 
       const newPatient = await registerPatient(patient);
@@ -176,31 +144,6 @@ const RegisterForm = ({ user }: { user: User }) => {
               name="birthDate"
               label="Date of birth"
             />
-
-            <CustomFormField
-              fieldType={FormFieldType.SKELETON}
-              control={form.control}
-              name="gender"
-              label="Gender"
-              renderSkeleton={(field) => (
-                <FormControl>
-                  <RadioGroup
-                    className="flex h-11 gap-6 xl:justify-between"
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    {GenderOptions.map((option, i) => (
-                      <div key={option + i} className="radio-group">
-                        <RadioGroupItem value={option} id={option} />
-                        <Label htmlFor={option} className="cursor-pointer">
-                          {option}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-              )}
-            />
           </div>
 
           <div className="flex flex-col gap-6 xl:flex-row">
@@ -236,13 +179,6 @@ const RegisterForm = ({ user }: { user: User }) => {
             label="Primary Physician"
             placeholder=""
           />
-          <CustomFormField
-            fieldType={FormFieldType.PHONE_INPUT}
-            control={form.control}
-            name="primaryPhysicianNumber"
-            label="Primary Physician Phone Number"
-            placeholder=""
-          />
 
           <div className="flex flex-col gap-6 xl:flex-row">
             <CustomFormField
@@ -253,23 +189,9 @@ const RegisterForm = ({ user }: { user: User }) => {
               placeholder=""
             />
 
-            <CustomFormField
-              fieldType={FormFieldType.PHONE_INPUT}
-              control={form.control}
-              name="emergencyContactNumber"
-              label="Emergency Contact Phone Number"
-              placeholder=""
-            />
           </div>
 
           <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="allergies"
-              label="Allergies (if any)"
-              placeholder=""
-            />
 
             <CustomFormField
               fieldType={FormFieldType.TEXTAREA}
@@ -285,24 +207,10 @@ const RegisterForm = ({ user }: { user: User }) => {
               fieldType={FormFieldType.TEXTAREA}
               control={form.control}
               name="medicalConditions"
-              label="Medical Conditions"
+              label="Medical Conditions (Allergies, etc.)"
               placeholder=""
             />
 
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="medicalSignature"
-              label="Digital Signature"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="medicalSignatureDate"
-              label="Date of Signature"
-            />
           </div>
         </section>
         <section className="space-y-6">
@@ -327,31 +235,6 @@ const RegisterForm = ({ user }: { user: User }) => {
               placeholder=""
             />
 
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="primaryDentist"
-              label="Primary Dentist"
-              placeholder=""
-            />
-          </div>
-
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="lastDentistName"
-              label="Last Dentist Name"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="lastDentistLocation"
-              label="Last Dentist Location"
-              placeholder=""
-            />
           </div>
 
           <div className="flex flex-col gap-6 xl:flex-row">
@@ -362,134 +245,13 @@ const RegisterForm = ({ user }: { user: User }) => {
               label="Date of most recent X-rays"
               placeholder=""
             />
-
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="dentalSignature"
-              label="Digital Signature"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="dentalSignatureDate"
-              label="Date of Signature"
-            />
           </div>
         </section>
 
-        <section className="space-y-6">
-          <div className="mb-9 space-y-1">
-            <h1 className="sub-header">Medical Insurance Information</h1>
-          </div>
-
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="medicalEmployerName"
-            label="Employer Name"
-            placeholder=""
-          />
-
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="medicalInsuranceName"
-              label="Medical Insurance Name"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.PHONE_INPUT}
-              control={form.control}
-              name="medicalInsuranceNumber"
-              label="Medical Insurance Phone Number"
-              placeholder=""
-            />
-          </div>
-
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="medicalInsuranceAddress"
-              label="Medical Insurance Address"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="medicalSubscriberName"
-              label="Subscriber Name"
-              placeholder=""
-            />
-          </div>
-
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CustomFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="medicalSubscriberBirth"
-              label="Subscriber DOB"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="medicalSubscriberSsn"
-              label="Subscriber SSN"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="medicalMemberIdNumber"
-              label="Member ID Number"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="medicalGroupNumber"
-              label="Group Number"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="medicalInsuranceSignature"
-              label="Digital Signature"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="medicalInsuranceSignatureDate"
-              label="Date of Signature"
-            />
-          </div>
-        </section>
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h1 className="sub-header">Dental Insurance Information</h1>
           </div>
-
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="dentalEmployerName"
-            label="Employer Name"
-            placeholder=""
-          />
 
           <div className="flex flex-col gap-6 xl:flex-row">
             <CustomFormField
@@ -560,20 +322,6 @@ const RegisterForm = ({ user }: { user: User }) => {
               placeholder=""
             />
 
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="dentalInsuranceSignature"
-              label="Digital Signature"
-              placeholder=""
-            />
-
-            <CustomFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="dentalInsuranceSignatureDate"
-              label="Date of Signature"
-            />
           </div>
         </section>
 
@@ -585,24 +333,9 @@ const RegisterForm = ({ user }: { user: User }) => {
           <CustomFormField
             fieldType={FormFieldType.CHECKBOX}
             control={form.control}
-            name="treatmentsConsent"
-            label="I consent to receive treatment for my health condition."
-          />
-
-          <CustomFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
             name="disclosureConsent"
             label="I consent to the use and disclosure of my health
             information for treatment purposes."
-          />
-
-          <CustomFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="privacyConsent"
-            label="I acknowledge that I have reviewed and agree to the
-            privacy policy"
           />
         </section>
 
