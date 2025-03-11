@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,7 +13,6 @@ import {
 import { Appointment } from "@/types/appwrite.types";
 
 import { AppointmentForm } from "./forms/AppointmentForm";
-
 import "react-datepicker/dist/react-datepicker.css";
 
 export const AppointmentModal = ({
@@ -22,6 +20,9 @@ export const AppointmentModal = ({
   userId,
   appointment,
   type,
+  title,
+  description,
+  patientPhone, // Add this prop to receive the patient's phone number
 }: {
   patientId: string;
   userId: string;
@@ -29,6 +30,7 @@ export const AppointmentModal = ({
   type: "schedule" | "cancel";
   title: string;
   description: string;
+  patientPhone?: string; // Make optional for backward compatibility
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -44,9 +46,9 @@ export const AppointmentModal = ({
       </DialogTrigger>
       <DialogContent className="shad-dialog sm:max-w-md">
         <DialogHeader className="mb-4 space-y-3">
-          <DialogTitle className="capitalize">{type} Appointment</DialogTitle>
+          <DialogTitle className="capitalize">{title || `${type} Appointment`}</DialogTitle>
           <DialogDescription>
-            Please fill in the following details to {type} appointment
+            {description || `Please fill in the following details to ${type} appointment`}
           </DialogDescription>
         </DialogHeader>
 
@@ -56,6 +58,7 @@ export const AppointmentModal = ({
           type={type}
           appointment={appointment}
           setOpen={setOpen}
+          patientPhone={patientPhone} // Pass the phone number to the form
         />
       </DialogContent>
     </Dialog>

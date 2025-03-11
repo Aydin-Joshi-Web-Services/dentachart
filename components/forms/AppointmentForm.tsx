@@ -21,6 +21,56 @@ import "react-datepicker/dist/react-datepicker.css";
 import CustomFormField, { FormFieldType } from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { Form } from "../ui/form";
+import { toast } from "sonner";
+
+// Function to send SMS via Twilio
+const sendSMS = async (appointmentDetails: any, type: "create" | "schedule" | "cancel", patientPhone: string) => {
+  try {
+    const formattedDate = new Date(appointmentDetails.schedule).toLocaleString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+    
+    let message = "";
+    
+    switch (type) {
+      case "schedule":
+        message = `Your appointment with Dr. ${appointmentDetails.primaryPhysician} has been scheduled for ${formattedDate}. Reason: ${appointmentDetails.reason}`;
+        break;
+      case "cancel":
+        message = `Your appointment with Dr. ${appointmentDetails.primaryPhysician} scheduled for ${formattedDate} has been cancelled.`;
+        break;
+      case "create":
+        message = `Your appointment request with Dr. ${appointmentDetails.primaryPhysician} for ${formattedDate} has been received. Reason: ${appointmentDetails.reason}`;
+        break;
+    }
+    
+    const response = await fetch('/api/send-sms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: patientPhone,
+        message: message
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to send SMS');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+    return false;
+  }
+};
 
 export const AppointmentForm = ({
   userId,
@@ -28,12 +78,14 @@ export const AppointmentForm = ({
   type = "create",
   appointment,
   setOpen,
+  patientPhone, // New prop to receive patient's phone number
 }: {
   userId: string;
   patientId: string;
   type: "create" | "schedule" | "cancel";
   appointment?: Appointment;
   setOpen?: Dispatch<SetStateAction<boolean>>;
+  patientPhone?: string; // Optional since some components may not pass it yet
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +124,7 @@ export const AppointmentForm = ({
 
     try {
       if (type === "create" && patientId) {
-        const appointment = {
+        const appointmentData = {
           userId,
           patient: patientId,
           primaryPhysician: values.primaryPhysician,
@@ -82,9 +134,18 @@ export const AppointmentForm = ({
           note: values.note,
         };
 
-        const newAppointment = await createAppointment(appointment);
+        const newAppointment = await createAppointment(appointmentData);
 
         if (newAppointment) {
+          // Send SMS notification
+          if (patientPhone) {
+            await sendSMS(appointmentData, type, patientPhone);
+            toast(
+              "Appointment request submitted", {
+              description: "A confirmation SMS has been sent to the patient.",
+            });
+          }
+          
           form.reset();
           router.push(
             `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
@@ -107,12 +168,40 @@ export const AppointmentForm = ({
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
 
         if (updatedAppointment) {
+          // Send SMS notification for schedule/cancel
+          if (patientPhone) {
+            // Need to combine the original appointment data with updates for complete SMS
+            const appointmentData = {
+              ...appointment,
+              ...appointmentToUpdate.appointment,
+              reason: appointment?.reason || "",
+            };
+            
+            const smsSent = await sendSMS(appointmentData, type, patientPhone);
+            
+            if (smsSent) {
+              toast(
+                type === "schedule" ? "Appointment scheduled" : "Appointment cancelled", {
+                description: `A ${type === "schedule" ? "confirmation" : "cancellation"} SMS has been sent to the patient.`,
+              });
+            } else {
+              toast(
+                type === "schedule" ? "Appointment scheduled" : "Appointment cancelled", {
+                description: "However, the SMS notification could not be sent.",
+              });
+            }
+          }
+          
           setOpen && setOpen(false);
           form.reset();
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast(
+        "Error", {
+        description: `Failed to ${type === "create" ? "create" : type} appointment. Please try again.`,
+      });
     }
     setIsLoading(false);
   };
@@ -126,7 +215,7 @@ export const AppointmentForm = ({
       buttonLabel = "Schedule Appointment";
       break;
     default:
-      buttonLabel = "Submit Apppointment";
+      buttonLabel = "Submit Appointment";
   }
 
   return (
@@ -183,7 +272,7 @@ export const AppointmentForm = ({
                 control={form.control}
                 name="reason"
                 label="Appointment reason"
-                placeholder="Annual montly check-up"
+                placeholder="Annual monthly check-up"
                 disabled={type === "schedule"}
               />
 
